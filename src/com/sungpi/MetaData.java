@@ -10,6 +10,30 @@ public class MetaData {
     private int dimensionY;
     private String linked;
     private int linkedStartFrame;
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "MetaData{" +
+                "linkee='" + linkee + '\'' +
+                ", linkeeStartFrame=" + linkeeStartFrame +
+                ", linkeeEndFrame=" + linkeeEndFrame +
+                ", displacementX=" + displacementX +
+                ", displacementY=" + displacementY +
+                ", dimensionX=" + dimensionX +
+                ", dimensionY=" + dimensionY +
+                ", linked='" + linked + '\'' +
+                ", linkedStartFrame=" + linkedStartFrame +
+                '}';
+    }
 
     public MetaData(String linkee, int linkeeStartFrame, int linkeeEndFrame, int displacementX, int displacementY,
                     int dimensionX, int dimensionY, String linked, int linkedStartFrame) {
@@ -22,6 +46,9 @@ public class MetaData {
         this.dimensionY = dimensionY;
         this.linked = linked;
         this.linkedStartFrame = linkedStartFrame;
+        this.name = this.getLinkee().substring(this.getLinkee().lastIndexOf('/')+1) + " -> " +
+                this.getLinked().substring(this.getLinked().lastIndexOf('/')+1);
+
     }
 
     public int getLinkeeStartFrame() {

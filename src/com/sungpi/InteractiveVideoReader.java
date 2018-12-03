@@ -1,5 +1,8 @@
 package com.sungpi;
 
+import com.sungpi.Caches.AuthoringToolCache;
+import com.sungpi.InteractiveVideoPlayerUtils.InteractiveVideoPlayerOption;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,17 +10,17 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class RgbsReader {
+public class InteractiveVideoReader {
 
     String filePath;
     static final int WIDTH = 352;
     static final int HEIGHT = 288;
     HashMap<Integer, int[][]> rgbVals = new HashMap<>();
-
-    RgbsReader() {
+    File[] rgbFiles = new File[9000];
+    public InteractiveVideoReader() {
     }
 
-    private void readRgbs() {
+//    private void readRgbs() {
 //        try {
 //            File file = new File(filePath);
 //            InputStream inputStream = new FileInputStream(file);
@@ -58,7 +61,7 @@ public class RgbsReader {
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-    }
+//    }
 
     private void createHashMapImageBuffer(File file) {
         try {
@@ -99,6 +102,45 @@ public class RgbsReader {
         }
     }
 
+    // video = 1 primary, video = 2 secondary.
+    public void readFileAndConstructFileArray(int video) {
+        File folder;
+        if (video == 1) {
+            folder = AuthoringToolCache.getInstance().getPrimaryVideoFolder();
+        } else {
+            folder = AuthoringToolCache.getInstance().getSecondaryVideoFolder();
+        }
+        File[] rgbFiles = folder.listFiles(new RgbFileFilter());
+        Arrays.sort(rgbFiles);
+        if (video == 1) {
+            AuthoringToolCache.getInstance().setPrimaryVideoFile(rgbFiles);
+        } else {
+            AuthoringToolCache.getInstance().setSecondaryVideoFile(rgbFiles);
+        }
+    }
+
+    public void readFileAndConstructHashMap() {
+        File folder = InteractiveVideoPlayerOption.getInstance().getInteractiveVideoFile();
+        File[] rgbFiles = folder.listFiles(new RgbFileFilter());
+        Arrays.sort(rgbFiles);
+
+        // TODO(sungwonc): Attach logger
+        for (File file : rgbFiles) {
+            System.out.println(file.getName());
+        }
+
+        for (File file : rgbFiles) {
+            createHashMapImageBuffer(file);
+        }
+
+        File[] wavFiles = folder.listFiles(new WavFileFilter());
+        File wavFile = wavFiles[0];
+        System.out.println(wavFile.getName());
+
+        InteractiveVideoPlayerOption.getInstance().setInteractiveVideo(new InteractiveVideo(wavFile.getName().substring(wavFile.getName().lastIndexOf('.')), rgbVals));
+        System.out.println("done importing");
+    }
+
     public static void main(String[] args) {
 //        System.out.println(Integer.parseInt("0001"));
         // write your code here
@@ -113,19 +155,14 @@ public class RgbsReader {
         File wavFile = wavFiles[0];
         System.out.println(wavFile.getName());
 
-        RgbsReader rgbsReader = new RgbsReader();
+        InteractiveVideoReader interactiveVideoReader = new InteractiveVideoReader();
 
         for (File file : rgbFiles) {
-            rgbsReader.createHashMapImageBuffer(file);
+            interactiveVideoReader.createHashMapImageBuffer(file);
         }
-        Video video = new Video(wavFile.getName().substring(wavFile.getName().lastIndexOf('.')), rgbsReader.rgbVals);
-        VideoPlayer videoPlayer = new VideoPlayer(video);
-        videoPlayer.play();
 
-
-        MetaData mockMetaData = new MetaData("AIFilm/AIFilmOne",
-                5, 200, 20, 20, 100, 100,
-                "AIFilm/AIFilmTwo", 1000);
-
+        InteractiveVideo interactiveVideo = new InteractiveVideo(wavFile.getName().substring(wavFile.getName().lastIndexOf('.')), interactiveVideoReader.rgbVals);
+        InteractiveVideoPlayer interactiveVideoPlayer = new InteractiveVideoPlayer(interactiveVideo);
+        interactiveVideoPlayer.play();
     }
 }

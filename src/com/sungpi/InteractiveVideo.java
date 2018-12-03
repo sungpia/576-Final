@@ -6,14 +6,19 @@ import java.awt.image.BufferedImage;
 import java.nio.Buffer;
 import java.util.HashMap;
 
-public class Video {
+public class InteractiveVideo {
     HashMap<Integer, int[][]> video;
     String name;
+    MetaData metadata;
 
-
-    Video(String name, HashMap<Integer, int[][]> video) {
+    InteractiveVideo(String name, HashMap<Integer, int[][]> video) {
         this.name = name;
         this.video = video;
+
+        MetaData mockMetaData = new MetaData("AIFilm/AIFilmOne",
+                5, 200, 20, 20, 100, 100,
+                "AIFilm/AIFilmTwo", 1000);
+        this.metadata = mockMetaData;
     }
 
     public String getName() {
